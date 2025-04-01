@@ -3,7 +3,7 @@ import yaml
 
 logger = logging.getLogger(__name__)
 
-def config(config_file):
+def set_config(config_file):
     try:
         with open(config_file, "r") as yamlfile:
             cfg = yaml.safe_load(yamlfile)
@@ -20,6 +20,8 @@ def config(config_file):
 
             if not aws_enabled and not gcp_enabled:
                 logger.warning(f"There is no cloud configuration enabled, backup will be locally stored.")
+
+        return cfg
 
     except ValueError as e:
         logger.error(f"Configuration error: {e}.")

@@ -2,6 +2,8 @@ import argparse
 import logging
 import os
 
+from database import DatabaseFactory, MySQL
+from config import set_config
 from utils import ensure_backup_dir_exists
 
 def setup_logger(log_file):
@@ -21,12 +23,14 @@ def main():
     parser = argparse.ArgumentParser(description="DB Backup Utility")
 
     parser.add_argument('operation', choices=['backup', 'restore'], help="Operation to perform")
+    # TODO
+    # parser.add_argument('--backup-type', required=True, choices=['full', 'incremental', 'differential'], default='full', help="Backup type specification: full, incremental, differential")
 
     parser.add_argument('--config', type=str, required=True, help="Path to your YAML configuration file")
     parser.add_argument('--db-type', required=True, choices=['mysql', 'postgresql', 'mongodb'], help="Type of database to backup/restore (mysql, postgresql, mongodb)")
     
     parser.add_argument('--cloud', type=str, help="Restore DB from a backup.")
-    parser.add_argument('--local-backup-dir', type=str, default='/backups', help="Restore DB from a backup.")
+    parser.add_argument('--local-backup-dir', type=str, default='~/backups', help="Restore DB from a backup.")
     parser.add_argument('--dry-run', action='store_true', help="Test the backup/restore without making changes")
 
     parser.add_argument('--log-file', help="Path to the log file", default="db-backup.log")
@@ -35,4 +39,12 @@ def main():
 
     setup_logger(args.log_file)
     ensure_backup_dir_exists(args.local_backup_dir)
+    cfg = set_config(args.config)
+
+    database = DatabaseFactory.database_handler(args.db_type, cfg)
+    conn = database.connect()
+    database.backup("full", args.local_backup_dir)
+    conn.close()
     
+if __name__ == "__main__":
+    main()

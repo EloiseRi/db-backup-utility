@@ -4,7 +4,7 @@ database:
   port: 3000
   user: my_user
   password: my_password
-  name: my_database
+  dbname: my_database
 
 backup:
   path: /backup/
