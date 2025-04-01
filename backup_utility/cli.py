@@ -2,7 +2,9 @@ import argparse
 import logging
 import os
 
-from utils import ensure_backup_dir_exists
+from .databases.factory import DatabaseFactory
+from .config import set_config
+from .utils import ensure_backup_dir_exists
 
 def setup_logger(log_file):
 
@@ -27,12 +29,27 @@ def main():
     
     parser.add_argument('--cloud', type=str, help="Restore DB from a backup.")
     parser.add_argument('--local-backup-dir', type=str, default='/backups', help="Restore DB from a backup.")
-    parser.add_argument('--dry-run', action='store_true', help="Test the backup/restore without making changes")
 
     parser.add_argument('--log-file', help="Path to the log file", default="db-backup.log")
 
     args = parser.parse_args()
 
     setup_logger(args.log_file)
+    logger = logging.getLogger(__name__)
+
     ensure_backup_dir_exists(args.local_backup_dir)
-    
+    cfg = set_config(args.config)
+
+    database = DatabaseFactory.database_handler(args.db_type, cfg)
+    database.connect()
+
+    try:
+        if args.operation == 'backup':
+            database.backup("full", args.local_backup_dir)
+    except Exception as e:
+        logging.error(f"An error ocurred during the {args.operation} operation: {e}.")
+        print(f"An error occured: {e}")
+
+    logging.info(f"Your {args.operation} operation completed.")
+if __name__ == "__main__":
+    main()
