@@ -2,15 +2,17 @@ import argparse
 import logging
 import os
 
+<<<<<<< HEAD:backup_utility/cli.py
 from .databases.factory import DatabaseFactory
 from .config import set_config
 from .utils import ensure_backup_dir_exists
 
+
 def setup_logger(log_file):
 
     logging.basicConfig(
-        level=logging.INFO, # INFO type and above will be displayed in the console
-        format="%(asctime)s - %(levelname)s - %(message)s"
+        level = logging.INFO, # INFO type and above will be displayed in the console
+        format = "%(asctime)s - %(levelname)s - %(message)s"
     )
 
     file_handler = logging.FileHandler(log_file, mode="a")
