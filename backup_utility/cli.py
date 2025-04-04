@@ -54,5 +54,6 @@ def main():
         print(f"An error occured: {e}")
 
     logging.info(f"Your {args.operation} operation completed.")
+
 if __name__ == "__main__":
     main()

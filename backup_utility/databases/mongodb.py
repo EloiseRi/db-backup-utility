@@ -24,7 +24,8 @@ class MongoDatabase(IDatabase):
         try:
             timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
             output_file = f"{backup_dir}/db_backup_{timestamp}.sql"
-            command = ["mongodump", "--db", self.database['dbname'], "--out", output_file]
+            command = ['mongodump', '--uri', f'mongodb://{self.database['user']}:{self.database['password']}@{self.database['host']}:{self.database['port']}/{self.database['dbname']}?authSource=admin',
+                       '--out', output_file]
 
             subprocess.run(command, check=True)
             logger.info(f"MongoDB backup of {self.database['dbname']} completed successfully, saved to {backup_dir}")
