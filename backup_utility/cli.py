@@ -2,9 +2,15 @@ import argparse
 import logging
 import os
 
+<<<<<<< HEAD:backup_utility/cli.py
 from .databases.factory import DatabaseFactory
 from .config import set_config
 from .utils import ensure_backup_dir_exists
+=======
+from database import DatabaseFactory, MySQL
+from config import set_config
+from utils import ensure_backup_dir_exists
+>>>>>>> origin/dev:backup-utility/cli.py
 
 def setup_logger(log_file):
 
@@ -23,6 +29,8 @@ def main():
     parser = argparse.ArgumentParser(description="DB Backup Utility")
 
     parser.add_argument('operation', choices=['backup', 'restore'], help="Operation to perform")
+    # TODO
+    # parser.add_argument('--backup-type', required=True, choices=['full', 'incremental', 'differential'], default='full', help="Backup type specification: full, incremental, differential")
 
     parser.add_argument('--config', type=str, required=True, help="Path to your YAML configuration file")
     parser.add_argument('--db-type', required=True, choices=['mysql', 'postgresql', 'mongodb'], help="Type of database to backup/restore (mysql, postgresql, mongodb)")
