@@ -23,6 +23,8 @@ def main():
     parser = argparse.ArgumentParser(description="DB Backup Utility")
 
     parser.add_argument('operation', choices=['backup', 'restore'], help="Operation to perform")
+    # TODO
+    # parser.add_argument('--backup-type', required=True, choices=['full', 'incremental', 'differential'], default='full', help="Backup type specification: full, incremental, differential")
 
     parser.add_argument('--config', type=str, required=True, help="Path to your YAML configuration file")
     parser.add_argument('--db-type', required=True, choices=['mysql', 'postgresql', 'mongodb'], help="Type of database to backup/restore (mysql, postgresql, mongodb)")
