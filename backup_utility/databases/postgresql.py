@@ -1,4 +1,5 @@
 import logging
+import os
 import psycopg2
 import subprocess
 
@@ -23,11 +24,17 @@ class PostgreDatabase(IDatabase):
 
     def backup(self, backup_type, backup_dir):
         try:
+            env = os.environ.copy()
+            env["PGPASSWORD"] = self.database['password']
+
             timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            output_file = f"{backup_dir}/db_backup_{timestamp}.sql"
+            output_file = f"{backup_dir}/db_backup_{timestamp}.dump"
             
-            command = ["pg_dump", "-U", self.database['user'], "-F", "c", "-b", "-v", "-f", output_file, self.database['dbname']]
-            subprocess.run(command, check=True)
+            command = ["pg_dump", "-h", self.database['host'], "-p", "5432", "-U",
+                       self.database['user'], "-F", "c", "-b", "-v", "-f",
+                       output_file, self.database['dbname']]
+            
+            subprocess.run(command, env=env, check=True)
             logger.info(f"PostgreSQL backup of {self.database['dbname']} completed successfully, saved to {backup_dir}")
         
         except subprocess.CalledProcessError as e:
