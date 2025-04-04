@@ -2,7 +2,6 @@ import argparse
 import logging
 import os
 
-<<<<<<< HEAD:backup_utility/cli.py
 from .databases.factory import DatabaseFactory
 from .config import set_config
 from .utils import ensure_backup_dir_exists
