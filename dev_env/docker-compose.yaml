@@ -1,0 +1,51 @@
+services:
+  backup-tool:
+    build:
+      context: ..
+      dockerfile: dev_env/Dockerfile
+    container_name: backup-tool-container
+    command: tail -f /dev/null
+    networks:
+      - backup_network
+    depends_on:
+      - mysql
+      - postgresql
+      - mongodb
+
+  mysql:
+    image: mysql:9.2
+    container_name: mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: §{MYSQL_PASSWORD}
+      MYSQL_DATABASE: backup_test
+    ports:
+      - "3306:3306"
+    networks:
+      - backup_network
+
+  postgresql:
+    image: postgres:15.12
+    container_name: postgres-container
+    environment:
+      POSTGRES_PASSWORD: §{POSTGRES_PASSWORD}
+      POSTGRES_DB: backup_test
+    ports:
+      - "5432:5432"
+    networks:
+      - backup_network
+
+  mongodb:
+    image: mongo:8.0.6
+    container_name: mongodb-container
+    networks:
+      - backup_network
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: §{MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: §{MONGO_PASSWORD}
+      MONGO_INITDB_DATABASE: backup_test
+    ports:
+      - "27017:27017"
+
+networks:
+  backup_network:
+    driver: bridge
