@@ -26,7 +26,7 @@ class PostgreDatabase(IDatabase):
             timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
             output_file = f"{backup_dir}/db_backup_{timestamp}.sql"
             
-            command = ["pg_dump", "-U", self.database['user'], "-F", "-c", "-b", "-v", "-f", output_file, self.database['dbname']]
+            command = ["pg_dump", "-U", self.database['user'], "-F", "c", "-b", "-v", "-f", output_file, self.database['dbname']]
             subprocess.run(command, check=True)
             logger.info(f"PostgreSQL backup of {self.database['dbname']} completed successfully, saved to {backup_dir}")
         
