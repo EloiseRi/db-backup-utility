@@ -8,16 +8,17 @@ from mysql.connector import Error
 
 logger = logging.getLogger(__name__)
 
+
 class MySQLDatabase(IDatabase):
     def connect(self):
         try:
             print(f"Connection to MySQL at {self.database['host']}...")
             conn = mysql.connector.connect(
-                host=self.database['host'],
-                port=self.database['port'],
-                user=self.database['user'],
-                password=self.database['password'],
-                database=self.database['dbname']
+                host=self.database["host"],
+                port=self.database["port"],
+                user=self.database["user"],
+                password=self.database["password"],
+                database=self.database["dbname"],
             )
 
             if conn.is_connected():
@@ -28,24 +29,33 @@ class MySQLDatabase(IDatabase):
 
     def backup(self, backup_type, backup_dir):
         try:
-            if backup_type == 'full':
+            if backup_type == "full":
                 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
                 output_file = f"{backup_dir}/db_backup_{timestamp}.sql"
-                command = ["mysqldump", "mysql", "-u", self.database['user'], f"-p{self.database['password']}", self.database['dbname']] # Need to add -h and --protocol=tcp if using docker-compose dev_env
-                
-                with open(output_file, 'w') as file:
+                command = [
+                    "mysqldump",
+                    "mysql",
+                    "-u",
+                    self.database["user"],
+                    f"-p{self.database['password']}",
+                    self.database["dbname"],
+                ]  # Need to add -h and --protocol=tcp if using docker-compose dev_env
+
+                with open(output_file, "w") as file:
                     subprocess.run(command, stdout=file, check=True)
-    
-            elif backup_type == 'incremental':
-                #TODO
+
+            elif backup_type == "incremental":
+                # TODO
                 pass
 
-            elif backup_type == 'differential':
-                #TODO
+            elif backup_type == "differential":
+                # TODO
                 pass
 
-            logger.info(f"MySQL backup of {self.database['dbname']} completed successfully, saved to {backup_dir}")
-       
+            logger.info(
+                f"MySQL backup of {self.database['dbname']} completed successfully, saved to {backup_dir}"
+            )
+
         except subprocess.CalledProcessError as e:
             logger.error(f"Error occured during backup of {self.database['dbname']}")
         except Exception as e:

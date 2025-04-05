@@ -2,6 +2,7 @@ from .mongodb import MongoDatabase
 from .mysql import MySQLDatabase
 from .postgresql import PostgreDatabase
 
+
 class DatabaseFactory:
     def database_handler(db_type, config):
         db_types = {

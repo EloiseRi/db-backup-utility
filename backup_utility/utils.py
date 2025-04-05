@@ -3,6 +3,7 @@ import os
 
 logger = logging.getLogger(__name__)
 
+
 def ensure_backup_dir_exists(backupdir):
     if not os.path.exists(backupdir):
         try:
