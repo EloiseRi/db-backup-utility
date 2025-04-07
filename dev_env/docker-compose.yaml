@@ -18,7 +18,7 @@ services:
     env_file:
       - .env
     environment:
-      MYSQL_ROOT_PASSWORD: §{MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_DATABASE: backup_test
     ports:
       - "3306:3306"
@@ -31,7 +31,7 @@ services:
     env_file:
       - .env
     environment:
-      POSTGRES_PASSWORD: §{POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: backup_test
     ports:
       - "5432:5432"
@@ -46,8 +46,8 @@ services:
     env_file:
       - .env
     environment:
-      MONGO_INITDB_ROOT_USERNAME: §{MONGO_USER}
-      MONGO_INITDB_ROOT_PASSWORD: §{MONGO_PASSWORD}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
       MONGO_INITDB_DATABASE: backup_test
     ports:
       - "27017:27017"
@@ -55,3 +55,4 @@ services:
 networks:
   backup_network:
     driver: bridge
+
