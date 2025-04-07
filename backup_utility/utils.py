@@ -1,7 +1,8 @@
-import logging
 import os
 
-logger = logging.getLogger(__name__)
+from .logger import setup_logger
+
+logger = setup_logger(__name__)
 
 
 def ensure_backup_dir_exists(backupdir):

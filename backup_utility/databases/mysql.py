@@ -1,13 +1,12 @@
-import logging
 import mysql.connector
 import subprocess
 
 from datetime import datetime
 from .db_interface import IDatabase
+from ..logger import setup_logger
 from mysql.connector import Error
 
-logger = logging.getLogger(__name__)
-
+logger = setup_logger(__name__)
 
 class MySQLDatabase(IDatabase):
     def connect(self):

@@ -1,11 +1,11 @@
-import logging
 import subprocess
 import pymongo
 
 from datetime import datetime
 from .db_interface import IDatabase
+from ..logger import setup_logger
 
-logger = logging.getLogger(__name__)
+logger = setup_logger(__name__)
 
 
 class MongoDatabase(IDatabase):
@@ -29,18 +29,13 @@ class MongoDatabase(IDatabase):
             output_file = f"{backup_dir}/db_backup_{timestamp}.sql"
             command = [
                 "mongodump",
-                "--host",
-                self.database["host"],
-                "--port",
-                str(self.database["port"]),
-                "--username",
-                self.database["user"],
-                "--password",
-                self.database["password"],
-                "--db",
-                self.database["dbname"],
-                "--out",
-                output_file,
+                "--host", self.database["host"],
+                "--port", str(self.database["port"]),
+                "--username", self.database["user"],
+                "--password", self.database["password"],
+                "--authenticationDatabase", "admin",
+                "--db", self.database["dbname"],
+                "--out", output_file,
             ]
 
             subprocess.run(command, check=True)
@@ -55,3 +50,4 @@ class MongoDatabase(IDatabase):
 
     def restore(self, backup_file):
         pass
+

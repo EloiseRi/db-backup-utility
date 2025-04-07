@@ -1,12 +1,12 @@
-import logging
 import os
 import psycopg2
 import subprocess
 
 from datetime import datetime
+from ..logger import setup_logger
 from .db_interface import IDatabase
 
-logger = logging.getLogger(__name__)
+logger = setup_logger(__name__)
 
 
 class PostgreDatabase(IDatabase):
@@ -22,7 +22,7 @@ class PostgreDatabase(IDatabase):
             print("Successfully connected to the database.")
 
         except Exception as e:
-            logging.error(f"An error occured while connecting Postgresql: {e}")
+            logger.error(f"An error occured while connecting Postgresql: {e}")
 
     def backup(self, backup_type, backup_dir):
         try:
