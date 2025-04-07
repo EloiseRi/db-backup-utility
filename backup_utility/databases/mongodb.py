@@ -29,8 +29,16 @@ class MongoDatabase(IDatabase):
             output_file = f"{backup_dir}/db_backup_{timestamp}.sql"
             command = [
                 "mongodump",
-                "--uri",
-                f"mongodb://{self.database['user']}:{self.database['password']}@{self.database['host']}:{self.database['port']}/{self.database['dbname']}?authSource=admin",
+                "--host",
+                self.database["host"],
+                "--port",
+                str(self.database["port"]),
+                "--username",
+                self.database["user"],
+                "--password",
+                self.database["password"],
+                "--db",
+                self.database["dbname"],
                 "--out",
                 output_file,
             ]
