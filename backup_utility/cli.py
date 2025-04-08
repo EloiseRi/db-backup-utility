@@ -12,26 +12,20 @@ def main():
     parser.add_argument(
         "operation", choices=["backup", "restore"], help="Operation to perform"
     )
-    # TODO
     # parser.add_argument('--backup-type', required=True, choices=['full', 'incremental', 'differential'], default='full', help="Backup type specification: full, incremental, differential")
 
     parser.add_argument(
         "--config", type=str, required=True, help="Path to your YAML configuration file"
     )
-    parser.add_argument(
-        "--db-type",
-        required=True,
-        choices=["mysql", "postgresql", "mongodb"],
-        help="Type of database to backup/restore (mysql, postgresql, mongodb)",
-    )
 
-    parser.add_argument("--cloud", type=str, help="Restore DB from a backup.")
     parser.add_argument(
         "--local-backup-dir",
         type=str,
-        default="Users/eloise/backups",
+        default="./backups",
         help="Restore DB from a backup.",
     )
+
+    parser.add_argument("--backup-file", help="Backup file to restore")
 
     args = parser.parse_args()
 
@@ -47,6 +41,8 @@ def main():
     try:
         if args.operation == "backup":
             database.backup("full", args.local_backup_dir)
+        elif args.operation == "restore":
+            database.restore(args.backup_file)
     except Exception as e:
         logger.error(f"An error ocurred during the {args.operation} operation: {e}.")
         print(f"An error occured: {e}")

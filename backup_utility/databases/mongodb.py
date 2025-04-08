@@ -29,13 +29,20 @@ class MongoDatabase(IDatabase):
             output_file = f"{backup_dir}/db_backup_{timestamp}.sql"
             command = [
                 "mongodump",
-                "--host", self.database["host"],
-                "--port", str(self.database["port"]),
-                "--username", self.database["user"],
-                "--password", self.database["password"],
-                "--authenticationDatabase", "admin",
-                "--db", self.database["dbname"],
-                "--out", output_file,
+                "--host",
+                self.database["host"],
+                "--port",
+                str(self.database["port"]),
+                "--username",
+                self.database["user"],
+                "--password",
+                self.database["password"],
+                "--authenticationDatabase",
+                "admin",
+                "--db",
+                self.database["dbname"],
+                "--out",
+                output_file,
             ]
 
             subprocess.run(command, check=True)
@@ -49,5 +56,26 @@ class MongoDatabase(IDatabase):
             logger.error(f"Unexpected error during during backup process: {e}")
 
     def restore(self, backup_file):
-        pass
+        try:
+            command = [
+                "mongorestore",
+                "--host",
+                self.database["host"],
+                "--port",
+                str(self.database["port"]),
+                "--username",
+                self.database["username"],
+                "--password",
+                self.database["password"],
+                "--authenticationDatabase",
+                "admin",
+                "--dbname",
+                self.database["dbname"],
+                backup_file,
+            ]
 
+            subprocess.run(command, check=True, capture_output=True)
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Error occured during backup of {self.database['dbname']}")
+        except Exception as e:
+            logger.error(f"Unexpected error during during backup process: {e}")

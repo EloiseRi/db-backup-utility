@@ -57,7 +57,30 @@ class PostgreDatabase(IDatabase):
         except subprocess.CalledProcessError as e:
             logger.error(f"Error occured during backup of {self.database['dbname']}")
         except Exception as e:
-            logger.error(f"Unexpected error during during backup process: {e}")
+            logger.error(f"Unexpected error during backup process: {e}")
 
     def restore(self, backup_file):
-        pass
+        try:
+            env = os.environ.copy()
+            env["PGPASSWORD"] = self.database["password"]
+
+            command = [
+                "pg_restore",
+                "--host",
+                self.database["host"],
+                "--port",
+                str(self.database["port"]),
+                "--username",
+                self.database["username"],
+                "--password",
+                self.database["password"],
+                "--dbname",
+                self.database["dbname"],
+                backup_file,
+            ]
+
+            subprocess.run(command, check=True, capture_output=True)
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Error occured during restore of {self.database['dbname']}")
+        except Exception as e:
+            logger.error(f"Unexpected error during restore process: {e}")

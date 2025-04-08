@@ -8,6 +8,7 @@ from mysql.connector import Error
 
 logger = setup_logger(__name__)
 
+
 class MySQLDatabase(IDatabase):
     def connect(self):
         try:
@@ -33,12 +34,13 @@ class MySQLDatabase(IDatabase):
                 output_file = f"{backup_dir}/db_backup_{timestamp}.sql"
                 command = [
                     "mysqldump",
-                    "mysql",
+                    "-h",
+                    self.database["host"],
                     "-u",
                     self.database["user"],
                     f"-p{self.database['password']}",
                     self.database["dbname"],
-                ]  # Need to add -h and --protocol=tcp if using docker-compose dev_env
+                ]  # Need to add --protocol=tcp if using docker-compose dev_env
 
                 with open(output_file, "w") as file:
                     subprocess.run(command, stdout=file, check=True)
@@ -61,4 +63,23 @@ class MySQLDatabase(IDatabase):
             logger.error(f"Unexpected error during during backup process: {e}")
 
     def restore(self, backup_file):
-        pass
+        try:
+            with open(backup_file) as file:
+                command = [
+                    "mysql",
+                    "-h",
+                    self.database["host"],
+                    "-u",
+                    self.database["user"],
+                    "-p" + self.database["password"],
+                    self.database["dbname"],
+                ]
+                subprocess.run(command, stdin=file, check=True)
+        except subprocess.CalledProcessError as e:
+            logger.error(f"MySQL restore failed: {e}")
+            raise RuntimeError(f"MySQL restore failed: {e}") from e
+        except FileNotFoundError:
+            logger.error(f"Dump file not found: {backup_file}")
+        except Exception as e:
+            logger.error(f"Unexpected error during during backup process: {e}")
+            raise
