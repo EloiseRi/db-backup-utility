@@ -1,3 +1,5 @@
+import gzip
+import os
 import subprocess
 import pymongo
 
@@ -6,7 +8,6 @@ from .db_interface import IDatabase
 from ..logger import setup_logger
 
 logger = setup_logger(__name__)
-
 
 class MongoDatabase(IDatabase):
     def connect(self):
@@ -44,16 +45,32 @@ class MongoDatabase(IDatabase):
                 "--out",
                 output_file,
             ]
+            
+            if self.config['backup'].get('compress', False):
+                    self._compress_backup(output_file)
 
             subprocess.run(command, check=True)
             logger.info(
                 f"MongoDB backup of {self.database['dbname']} completed successfully, saved to {backup_dir}"
             )
 
+
         except subprocess.CalledProcessError as e:
             logger.error(f"Error occured during backup of {self.database['dbname']}")
         except Exception as e:
             logger.error(f"Unexpected error during during backup process: {e}")
+
+    def _compress_backup(self, output_file):
+        try:
+            with open(output_file, "rb") as f_in:
+                compressed_file = f"{output_file}.gz"
+                with gzip.open(compressed_file, "wb") as f_out:
+                    f_out.writelines(f_in)
+
+            os.remove(output_file)
+            logger.info(f"Backup file compressed successfully: {compressed_file}")
+        except Exception as e:
+            logger.error(f"Error occurred during compression of {output_file}: {e}")
 
     def restore(self, backup_file):
         try:

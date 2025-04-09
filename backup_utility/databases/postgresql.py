@@ -1,3 +1,4 @@
+import gzip
 import os
 import psycopg2
 import subprocess
@@ -50,6 +51,10 @@ class PostgreDatabase(IDatabase):
             ]
 
             subprocess.run(command, env=env, check=True)
+
+            if self.config['backup'].get('compress', False):
+                    self._compress_backup(output_file)
+
             logger.info(
                 f"PostgreSQL backup of {self.database['dbname']} completed successfully, saved to {backup_dir}"
             )
@@ -58,6 +63,18 @@ class PostgreDatabase(IDatabase):
             logger.error(f"Error occured during backup of {self.database['dbname']}")
         except Exception as e:
             logger.error(f"Unexpected error during backup process: {e}")
+
+    def _compress_backup(self, output_file):
+        try:
+            with open(output_file, "rb") as f_in:
+                compressed_file = f"{output_file}.gz"
+                with gzip.open(compressed_file, "wb") as f_out:
+                    f_out.writelines(f_in)
+
+            os.remove(output_file)
+            logger.info(f"Backup file compressed successfully: {compressed_file}")
+        except Exception as e:
+            logger.error(f"Error occurred during compression of {output_file}: {e}")
 
     def restore(self, backup_file):
         try:

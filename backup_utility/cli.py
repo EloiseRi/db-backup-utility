@@ -3,6 +3,7 @@ import argparse
 from .config import set_config
 from .databases.factory import DatabaseFactory
 from .logger import setup_logger
+from .notification import send_slack_notification
 from .utils import ensure_backup_dir_exists
 
 
@@ -12,7 +13,6 @@ def main():
     parser.add_argument(
         "operation", choices=["backup", "restore"], help="Operation to perform"
     )
-    # parser.add_argument('--backup-type', required=True, choices=['full', 'incremental', 'differential'], default='full', help="Backup type specification: full, incremental, differential")
 
     parser.add_argument(
         "--config", type=str, required=True, help="Path to your YAML configuration file"
@@ -36,13 +36,34 @@ def main():
     cfg = set_config(args.config)
 
     database = DatabaseFactory.database_handler(args.db_type, cfg)
-    database.connect()
 
     try:
         if args.operation == "backup":
             database.backup("full", args.local_backup_dir)
+
+            if cfg["cloud"]["enabled"]:
+                if cfg["cloud"]["provider"] == "aws":
+                    from .cloud.aws import upload_to_s3
+
+                    upload_to_s3(cfg, args.local_backup_dir)
+                elif cfg["cloud"]["provider"] == "azure":
+                    from .cloud.azure import upload_to_azure
+
+                    upload_to_azure(cfg, args.local_backup_dir)
+                elif cfg["cloud"]["provider"] == "gcs":
+                    from .cloud.gcp import upload_to_gcs
+
+                    upload_to_gcs(cfg, args.local_backup_dir)
+                else:
+                    raise ValueError("Unsupported cloud provider.")
+                
+                if cfg['notifications']['slack']['enabled']:
+                    send_slack_notification(cfg, "Backup completed successfully.")
         elif args.operation == "restore":
             database.restore(args.backup_file)
+            if cfg['notifications']['slack']['enabled']:
+                    send_slack_notification(cfg, "Backup completed successfully.")
+
     except Exception as e:
         logger.error(f"An error ocurred during the {args.operation} operation: {e}.")
         print(f"An error occured: {e}")
