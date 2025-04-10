@@ -1,0 +1,22 @@
+database:
+  type: postgresql
+  host: localhost
+  port: 3000
+  user: my_user
+  password: my_password
+  dbname: my_database
+
+backup:
+  path: /backup/
+  retention_days: 7
+
+cloud:
+  aws:
+    enabled: false
+
+  gcp:
+    enabled: false
+
+notifications:
+  slack:
+    enabled: false
